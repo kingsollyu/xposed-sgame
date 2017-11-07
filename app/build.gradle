@@ -1,0 +1,43 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+
+static def getGitVersion() {
+    return 'git rev-parse --short HEAD'.execute().text.trim()
+}
+
+android {
+    compileSdkVersion 26
+    flavorDimensions "default"
+    defaultConfig {
+        applicationId "com.sollyu.android.sgame"
+        minSdkVersion 15
+        targetSdkVersion 26
+        versionCode 1
+        versionName "1.0.0-alpha-" + getGitVersion()
+        buildConfigField "String", "GIT_REVISION", "\"${getGitVersion()}\""
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    productFlavors {
+        official {
+            dimension "default"
+        }
+    }
+    android.applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            output.outputFileName = new File(applicationId + "-" + buildType.name + "-v" + defaultConfig.versionName + "-" + defaultConfig.versionCode + "-" + variant.productFlavors[0].name + "-" + new Date().format("yyyyMMdd", TimeZone.getTimeZone("UTC")) + ".apk");
+        }
+    }
+
+}
+
+dependencies {
+    compileOnly fileTree(dir: 'libs', include: ['*.jar'])
+    implementation"org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    implementation 'com.android.support:appcompat-v7:26.1.0'
+}
